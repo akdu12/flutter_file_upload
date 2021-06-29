@@ -1,41 +1,32 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter_file_upload/comon.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as fileUtil;
 
-typedef void OnUploadProgressCallback(int sentBytes, int totalBytes);
-
 class FileService {
-  static bool trustSelfSigned = true;
-  static String baseUrl = "";
-
-  static HttpClient getHttpClient() {
-    HttpClient httpClient = new HttpClient()
-      ..connectionTimeout = const Duration(seconds: 10)
-      ..badCertificateCallback =
-          ((X509Certificate cert, String host, int port) => trustSelfSigned);
-
-    return httpClient;
-  }
-
-  static Future<HttpClientResponse> fileUpload(
-      {File file, OnUploadProgressCallback onUploadProgress}) async {
+  Future<HttpClientResponse> upload(
+      {dynamic file,
+      String url,
+      OnUploadProgressCallback onUploadProgress,
+      Map<String, String> headers}) async {
     assert(file != null);
-
-    final url = '$baseUrl/api/file';
+    assert(url != null);
 
     final fileStream = file.openRead();
-
     int totalByteLength = file.lengthSync();
-
-    final httpClient = getHttpClient();
-
+    final httpClient = HttpClient();
     final request = await httpClient.postUrl(Uri.parse(url));
 
     request.headers.set(HttpHeaders.contentTypeHeader, ContentType.binary);
-
     request.headers.add("filename", fileUtil.basename(file.path));
+
+    if (headers != null && headers.isNotEmpty) {
+      for (final header in headers.entries) {
+        request.headers.set(header.key, header.value);
+      }
+    }
 
     request.contentLength = totalByteLength;
 
@@ -47,7 +38,6 @@ class FileService {
 
           if (onUploadProgress != null) {
             onUploadProgress(byteCount, totalByteLength);
-            // CALL STATUS CALLBACK;
           }
 
           sink.add(data);
@@ -73,38 +63,34 @@ class FileService {
     }
   }
 
-  static Future<HttpClientResponse> fileUploadMultipart(
-      {File file, OnUploadProgressCallback onUploadProgress}) async {
+  Future<HttpClientResponse> uploadWithMultipart(
+      {dynamic file,
+      String url,
+      OnUploadProgressCallback onUploadProgress,
+      Map<String, String> headers}) async {
     assert(file != null);
-
-    final url = '$baseUrl/api/file';
-
-    final httpClient = getHttpClient();
-
+    assert(url != null);
+    final httpClient = HttpClient();
     final request = await httpClient.postUrl(Uri.parse(url));
-
-    int byteCount = 0;
 
     var multipart = await http.MultipartFile.fromPath(
         fileUtil.basename(file.path), file.path);
-
-    // final fileStreamFile = file.openRead();
-
-    // var multipart = MultipartFile("file", fileStreamFile, file.lengthSync(),
-    //     filename: fileUtil.basename(file.path));
-
     var requestMultipart = http.MultipartRequest("", Uri.parse("uri"));
-
     requestMultipart.files.add(multipart);
 
     var msStream = requestMultipart.finalize();
 
     var totalByteLength = requestMultipart.contentLength;
-
     request.contentLength = totalByteLength;
 
     request.headers.set(HttpHeaders.contentTypeHeader,
         requestMultipart.headers[HttpHeaders.contentTypeHeader]);
+    if (headers != null && headers.isNotEmpty) {
+      for (final header in headers.entries) {
+        request.headers.set(header.key, header.value);
+      }
+    }
+    int byteCount = 0;
 
     Stream<List<int>> streamUpload = msStream.transform(
       new StreamTransformer.fromHandlers(
@@ -123,7 +109,6 @@ class FileService {
         },
         handleDone: (sink) {
           sink.close();
-          // UPLOAD DONE;
         },
       ),
     );
