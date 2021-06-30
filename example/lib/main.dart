@@ -1,7 +1,6 @@
-import 'dart:html';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_file_upload/flutter_file_upload.dart';
+
+import 'web.dart' if (dart.library.io) "mobile.dart";
 
 void main() {
   runApp(MyApp());
@@ -39,7 +38,13 @@ class _WebFileUploadExample extends State<WebFileUploadExample> {
             Text("$_progress", style: TextStyle(color: Colors.black)),
             const SizedBox(height: 20),
             TextButton(
-              onPressed: _startFilePicker,
+              onPressed: () => pickAndUpload((progress) {
+                {
+                  setState(() {
+                    _progress = progress;
+                  });
+                }
+              }),
               style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all(Colors.lightBlue)),
               child: Text(
@@ -51,25 +56,5 @@ class _WebFileUploadExample extends State<WebFileUploadExample> {
         ),
       ),
     );
-  }
-
-  void _startFilePicker() async {
-    InputElement uploadInput = FileUploadInputElement();
-    uploadInput.click();
-
-    uploadInput.onChange.listen((e) {
-      final files = uploadInput.files;
-      if (files.length == 1) {
-        final file = files[0];
-        FileService().upload(
-            file: file,
-            url: "http://localhost:3000/upload",
-            onUploadProgress: (sent, total) {
-              setState(() {
-                _progress = sent / total;
-              });
-            });
-      }
-    });
   }
 }

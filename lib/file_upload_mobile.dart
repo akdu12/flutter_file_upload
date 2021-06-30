@@ -19,7 +19,7 @@ class FileService {
     final httpClient = HttpClient();
     final request = await httpClient.postUrl(Uri.parse(url));
 
-    request.headers.set(HttpHeaders.contentTypeHeader, ContentType.binary);
+    request.headers.set(HttpHeaders.contentTypeHeader, ContentType.binary.mimeType);
     request.headers.add("filename", fileUtil.basename(file.path));
 
     if (headers != null && headers.isNotEmpty) {
