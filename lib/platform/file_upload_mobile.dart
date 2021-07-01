@@ -7,10 +7,10 @@ import 'package:path/path.dart' as fileUtil;
 
 class FileService {
   static Future<HttpClientResponse> upload(
-      {dynamic file,
-      String url,
-      OnUploadProgressCallback onUploadProgress,
-      Map<String, String> headers}) async {
+      {required dynamic file,
+      required String url,
+      OnUploadProgressCallback? onUploadProgress,
+      Map<String, String>? headers}) async {
     assert(file != null);
     assert(url != null);
 
@@ -64,10 +64,10 @@ class FileService {
   }
 
   static Future<HttpClientResponse> uploadWithMultipart(
-      {dynamic file,
-      String url,
-      OnUploadProgressCallback onUploadProgress,
-      Map<String, String> headers}) async {
+      {required dynamic file,
+      required String url,
+      OnUploadProgressCallback? onUploadProgress,
+      Map<String, String>? headers}) async {
     assert(file != null);
     assert(url != null);
     final httpClient = HttpClient();
@@ -84,7 +84,7 @@ class FileService {
     request.contentLength = totalByteLength;
 
     request.headers.set(HttpHeaders.contentTypeHeader,
-        requestMultipart.headers[HttpHeaders.contentTypeHeader]);
+        requestMultipart.headers[HttpHeaders.contentTypeHeader]!);
     if (headers != null && headers.isNotEmpty) {
       for (final header in headers.entries) {
         request.headers.set(header.key, header.value);
