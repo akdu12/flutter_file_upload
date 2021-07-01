@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as fileUtil;
 
 class FileService {
-  Future<HttpClientResponse> upload(
+  static Future<HttpClientResponse> upload(
       {dynamic file,
       String url,
       OnUploadProgressCallback onUploadProgress,
@@ -14,7 +14,7 @@ class FileService {
     assert(file != null);
     assert(url != null);
 
-    final fileStream = file.openRead();
+    final fileStream = (file as File).openRead();
     int totalByteLength = file.lengthSync();
     final httpClient = HttpClient();
     final request = await httpClient.postUrl(Uri.parse(url));
@@ -63,7 +63,7 @@ class FileService {
     }
   }
 
-  Future<HttpClientResponse> uploadWithMultipart(
+  static Future<HttpClientResponse> uploadWithMultipart(
       {dynamic file,
       String url,
       OnUploadProgressCallback onUploadProgress,

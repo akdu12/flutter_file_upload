@@ -10,7 +10,7 @@ void pickAndUpload(Function(double) onProgress) async {
     final files = uploadInput.files;
     if (files.length == 1) {
       final file = files[0];
-      FileService().upload(
+      FileService.upload(
           file: file,
           url: "http://localhost:3000/upload/testID",
           onUploadProgress: (sent, total) {

@@ -4,7 +4,7 @@ import 'dart:html';
 import 'package:flutter_file_upload/comon.dart';
 
 class FileService {
-  Future<dynamic> uploadWithMultipart(
+  static Future<dynamic> uploadWithMultipart(
       {dynamic file,
       String url,
       OnUploadProgressCallback onUploadProgress,
@@ -31,7 +31,7 @@ class FileService {
     }
   }
 
-  Future<dynamic> upload(
+  static Future<dynamic> upload(
       {dynamic file,
       String url,
       OnUploadProgressCallback onUploadProgress,
